@@ -91,7 +91,7 @@
             padding: 2px 4px;
         }
 
-        /* Cetak Khusus */
+        /* Cetak Khusus dengan Garis Tipis Elegan */
         @media print {
             .no-print {
                 display: none !important;
@@ -154,18 +154,19 @@
                 width: 100%;
                 border-collapse: collapse;
                 table-layout: fixed;
+                border: 1px solid #cbd5e1 !important;
             }
             th {
                 background-color: #1e3a8a !important;
                 color: white !important;
                 -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
-                border: 2px solid #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
                 padding: 10px 4px !important;
                 font-size: 11px !important;
             }
             td {
-                border: 2px solid #0f172a !important;
+                border: 1px solid #cbd5e1 !important;
                 background-color: white !important;
                 height: auto !important;
                 min-height: auto !important;
@@ -174,7 +175,7 @@
             }
             .badge-guru {
                 border: none !important;
-                border-bottom: 1px solid #94a3b8 !important;
+                border-bottom: 1px solid #cbd5e1 !important;
                 background-color: transparent !important;
                 color: #0f172a !important;
                 box-shadow: none !important;
@@ -289,14 +290,14 @@
             <!-- Tabel Jadwal Piket (Sisi Kanan) -->
             <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full min-w-[700px] border-collapse table-fixed">
+                    <table class="w-full min-w-[700px] border-collapse table-fixed border border-slate-200">
                         <thead>
                             <tr id="headerHari" class="bg-blue-900 text-white rounded-t-xl">
                                 <!-- Kolom Hari diisi melalui JavaScript -->
                             </tr>
                         </thead>
                         <tbody>
-                            <tr id="barisPiket" class="align-top divide-x divide-slate-100">
+                            <tr id="barisPiket" class="align-top divide-x divide-slate-200">
                                 <!-- Area Drop Zone Guru diisi melalui JavaScript -->
                             </tr>
                         </tbody>
@@ -813,7 +814,7 @@
                     e.preventDefault();
                     td.classList.add('drag-over');
                 };
-                // Drag Leave
+                // Drop Leave
                 td.ondragleave = () => {
                     td.classList.remove('drag-over');
                 };
@@ -1027,6 +1028,102 @@
             showToast(`Orientasi cetak diubah ke ${type === 'landscape' ? 'Lanskap' : 'Potret'}.`);
         }
 
+        // Memperbarui aturan CSS @media print berdasarkan orientasi aktif
+        function updateOrientationStyles() {
+            let styleEl = document.getElementById('orientation-print-style');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'orientation-print-style';
+                document.head.appendChild(styleEl);
+            }
+            
+            if (currentOrientation === 'landscape') {
+                styleEl.innerHTML = `
+                    @media print {
+                        @page {
+                            size: landscape;
+                            margin: 1cm 1.5cm;
+                        }
+                        /* Penyesuaian khusus Lanskap */
+                        .max-w-7xl {
+                            max-width: 100% !important;
+                            width: 100% !important;
+                        }
+                        table {
+                            font-size: 13px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        th {
+                            padding: 12px 6px !important;
+                            font-size: 13px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        td {
+                            padding: 8px 6px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        .badge-guru {
+                            border-bottom: 1px solid #cbd5e1 !important;
+                        }
+                        .badge-guru .nama-text {
+                            font-size: 12px !important;
+                            padding: 4px 0 !important;
+                        }
+                        .signature-block {
+                            margin-top: 40px !important;
+                        }
+                    }
+                `;
+            } else {
+                styleEl.innerHTML = `
+                    @media print {
+                        @page {
+                            size: portrait;
+                            margin: 1cm;
+                        }
+                        /* Penyesuaian khusus Potret */
+                        .max-w-7xl {
+                            max-width: 100% !important;
+                            width: 100% !important;
+                        }
+                        table {
+                            font-size: 11px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        th {
+                            padding: 8px 4px !important;
+                            font-size: 11px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        td {
+                            padding: 4px 4px !important;
+                            border: 1px solid #cbd5e1 !important;
+                        }
+                        .badge-guru {
+                            border-bottom: 1px solid #cbd5e1 !important;
+                        }
+                        .badge-guru .nama-text {
+                            font-size: 10px !important;
+                            padding: 2px 0 !important;
+                        }
+                        .signature-block {
+                            margin-top: 25px !important;
+                        }
+                    }
+                `;
+            }
+
+            // Memperbarui visual tombol di header
+            document.querySelectorAll('.btn-orientation').forEach(btn => {
+                const orient = btn.getAttribute('data-orientation');
+                if (orient === currentOrientation) {
+                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-blue-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200';
+                }
+            });
+        }
+
         // Fungsi untuk mengonversi dan mengunduh jadwal piket sebagai gambar PNG berkualitas tinggi
         async function unduhGambar() {
             showToast("Mempersiapkan gambar untuk diunduh...");
@@ -1062,22 +1159,44 @@
             // Bersihkan elemen kontrol interaktif yang tidak diperlukan dalam gambar
             originalTable.querySelectorAll('.no-print').forEach(el => el.remove());
             
-            // Sesuaikan gaya visual tabel agar presisi di dalam hasil gambar PNG
+            // Sesuaikan gaya visual tabel agar presisi di dalam hasil gambar PNG menggunakan style inline langsung
             originalTable.style.width = '100%';
             originalTable.style.borderCollapse = 'collapse';
-            originalTable.className = 'w-full border-collapse table-fixed';
+            originalTable.style.border = '1px solid #cbd5e1'; // Menggunakan border 1px biasa yang tipis
+            originalTable.style.tableLayout = 'fixed';
 
-            // Memberikan border tegas bernuansa profesional untuk baris tabel di gambar
+            // Memberikan border tegas bernuansa profesional untuk baris tabel di gambar secara inline (agar dibaca html2canvas)
             originalTable.querySelectorAll('th').forEach(th => {
-                th.className = 'border-2 border-slate-800 p-3.5 text-center font-bold text-xs bg-blue-900 text-white';
+                th.style.border = '1px solid #cbd5e1'; // Diubah dari 2px solid #0f172a ke 1px tipis
+                th.style.padding = '14px 4px';
+                th.style.fontSize = '12px';
+                th.style.fontWeight = 'bold';
+                th.style.backgroundColor = '#1e3a8a'; // bg-blue-900
+                th.style.color = '#ffffff';
+                th.style.textAlign = 'center';
             });
             originalTable.querySelectorAll('td').forEach(td => {
-                td.className = 'border-2 border-slate-800 p-2 bg-white align-top';
+                td.style.border = '1px solid #cbd5e1'; // Diubah dari 2px solid #0f172a ke 1px tipis
+                td.style.padding = '8px 4px';
+                td.style.backgroundColor = '#ffffff';
+                td.style.verticalAlign = 'top';
+                
                 td.querySelectorAll('.badge-guru').forEach(badge => {
-                    badge.className = 'py-2 px-1 text-center flex flex-col justify-center items-center border-b border-slate-200 last:border-0';
+                    badge.style.display = 'block';
+                    badge.style.border = 'none';
+                    badge.style.borderBottom = '1px solid #cbd5e1'; // Line pemisah tipis
+                    badge.style.padding = '6px 2px';
+                    badge.style.textAlign = 'center';
+                    badge.style.backgroundColor = 'transparent';
+                    
                     const textSpan = badge.querySelector('.nama-text');
                     if (textSpan) {
-                        textSpan.className = 'text-xs font-semibold text-slate-800';
+                        textSpan.style.fontSize = '11px';
+                        textSpan.style.fontWeight = '600';
+                        textSpan.style.color = '#0f172a';
+                        textSpan.style.textAlign = 'center';
+                        textSpan.style.display = 'block';
+                        textSpan.style.width = '100%';
                     }
                 });
             });
@@ -1092,6 +1211,7 @@
             if (kepsekNameEl) {
                 kepsekNameEl.className = 'font-bold border-b border-slate-400 pb-1 mb-1 inline-block w-full text-slate-900';
                 kepsekNameEl.removeAttribute('contenteditable');
+                kepsekNameEl.style.borderBottom = '1px solid #0f172a';
             }
             const kepsekNipEl = originalSig.querySelector('#nipKepsek');
             if (kepsekNipEl) {
@@ -1127,90 +1247,6 @@
                 // Bersihkan kembali elemen temporer dari body DOM
                 document.body.removeChild(tempContainer);
             }
-        }
-
-        // Memperbarui aturan CSS @media print berdasarkan orientasi aktif
-        function updateOrientationStyles() {
-            let styleEl = document.getElementById('orientation-print-style');
-            if (!styleEl) {
-                styleEl = document.createElement('style');
-                styleEl.id = 'orientation-print-style';
-                document.head.appendChild(styleEl);
-            }
-            
-            if (currentOrientation === 'landscape') {
-                styleEl.innerHTML = `
-                    @media print {
-                        @page {
-                            size: landscape;
-                            margin: 1cm 1.5cm;
-                        }
-                        /* Penyesuaian khusus Lanskap */
-                        .max-w-7xl {
-                            max-width: 100% !important;
-                            width: 100% !important;
-                        }
-                        table {
-                            font-size: 13px !important;
-                        }
-                        th {
-                            padding: 12px 6px !important;
-                            font-size: 13px !important;
-                        }
-                        td {
-                            padding: 8px 6px !important;
-                        }
-                        .badge-guru .nama-text {
-                            font-size: 12px !important;
-                            padding: 4px 0 !important;
-                        }
-                        .signature-block {
-                            margin-top: 40px !important;
-                        }
-                    }
-                `;
-            } else {
-                styleEl.innerHTML = `
-                    @media print {
-                        @page {
-                            size: portrait;
-                            margin: 1cm;
-                        }
-                        /* Penyesuaian khusus Potret */
-                        .max-w-7xl {
-                            max-width: 100% !important;
-                            width: 100% !important;
-                        }
-                        table {
-                            font-size: 11px !important;
-                        }
-                        th {
-                            padding: 8px 4px !important;
-                            font-size: 11px !important;
-                        }
-                        td {
-                            padding: 4px 4px !important;
-                        }
-                        .badge-guru .nama-text {
-                            font-size: 10px !important;
-                            padding: 2px 0 !important;
-                        }
-                        .signature-block {
-                            margin-top: 25px !important;
-                        }
-                    }
-                `;
-            }
-
-            // Memperbarui visual tombol di header
-            document.querySelectorAll('.btn-orientation').forEach(btn => {
-                const orient = btn.getAttribute('data-orientation');
-                if (orient === currentOrientation) {
-                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-blue-600 text-white shadow-sm';
-                } else {
-                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200';
-                }
-            });
         }
 
         // Jalankan inisiasi saat halaman selesai dimuat sepenuhnya
