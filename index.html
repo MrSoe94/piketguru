@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Jadwal Piket Guru</title>
+    <!-- Tailwind CSS untuk tata letak modern dan responsif -->
+    <script src="https://tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter untuk tipografi yang elegan -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome untuk ikon gratis -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        .dragging {
+            opacity: 0.4;
+            transform: scale(0.98);
+        }
+        .drop-zone {
+            min-height: 320px;
+            transition: all 0.25s ease;
+        }
+        .drop-zone.drag-over {
+            background-color: #f0fdf4 !important;
+            box-shadow: inset 0 0 12px rgba(34, 197, 94, 0.12);
+        }
+        /* Custom scrollbar untuk daftar guru */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Desain Nama Guru Tanpa Shape/Pill di Dalam Tabel */
+        .badge-guru {
+            background: transparent !important;
+            border: none !important;
+            border-bottom: 1px dashed #e2e8f0 !important;
+            border-radius: 0px !important;
+            box-shadow: none !important;
+            color: #1e293b !important;
+            padding: 8px 4px !important;
+            margin-bottom: 0px !important;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            box-sizing: border-box;
+            transition: background-color 0.15s ease;
+        }
+        .badge-guru:hover {
+            background-color: #f1f5f9 !important;
+        }
+        .badge-guru .nama-text {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: left;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            flex-grow: 1;
+        }
+
+        /* Efek hover untuk judul yang bisa dikustomisasi */
+        .editable-title:hover {
+            background-color: #f1f5f9;
+            border-radius: 4px;
+        }
+        .editable-title:focus {
+            background-color: white;
+            outline: 2px solid #3b82f6;
+            border-radius: 4px;
+            padding: 2px 4px;
+        }
+
+        /* Cetak Khusus */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+            body {
+                background: white;
+                padding: 0;
+                margin: 0;
+            }
+            .max-w-7xl {
+                max-width: 100% !important;
+                width: 100% !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            /* Memaksa layout grid runtuh menjadi satu kolom penuh saat dicetak */
+            .grid {
+                display: block !important;
+            }
+            .lg\:col-span-3 {
+                width: 100% !important;
+                padding: 0 !important;
+                border: none !important;
+                box-shadow: none !important;
+            }
+            /* Menghilangkan bingkai luar header dan menempatkan judul tepat di tengah halaman */
+            header {
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+                text-align: center !important;
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin-top: 0 !important;
+                margin-bottom: 10px !important;
+                background: transparent !important;
+            }
+            .page-title-container {
+                max-width: 100% !important;
+                width: 100% !important;
+                text-align: center !important;
+                margin-bottom: 4px !important;
+            }
+            .page-title {
+                font-size: 24px !important;
+                color: #000 !important;
+                font-weight: 700 !important;
+                text-align: center !important;
+                display: block !important;
+                width: 100% !important;
+            }
+            #appSubtitle {
+                text-align: center !important;
+                display: block !important;
+                width: 100% !important;
+            }
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+            th {
+                background-color: #1e3a8a !important;
+                color: white !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                border: 2px solid #0f172a !important;
+                padding: 10px 4px !important;
+                font-size: 11px !important;
+            }
+            td {
+                border: 2px solid #0f172a !important;
+                background-color: white !important;
+                height: auto !important;
+                min-height: auto !important;
+                padding: 4px 4px !important;
+                vertical-align: top !important;
+            }
+            .badge-guru {
+                border: none !important;
+                border-bottom: 1px solid #94a3b8 !important;
+                background-color: transparent !important;
+                color: #0f172a !important;
+                box-shadow: none !important;
+                padding: 6px 2px !important;
+                margin-bottom: 0 !important;
+                display: block !important;
+                text-align: center !important;
+            }
+            .badge-guru .nama-text {
+                font-size: 10px !important;
+                text-align: center !important;
+                display: block !important;
+                width: 100% !important;
+            }
+            .badge-guru button {
+                display: none !important;
+            }
+            /* Menghilangkan garis bantu kustomisasi saat dicetak */
+            .border-dashed {
+                border-style: none !important;
+            }
+            /* Memastikan tanda tangan tidak terpotong halaman */
+            .signature-block {
+                page-break-inside: avoid !important;
+                margin-top: 30px !important;
+            }
+        }
+    </style>
+</head>
+<body class="text-slate-800 antialiased min-h-screen pb-12">
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-4">
+        <!-- Header Aplikasi - Dipersempit jarak margin bawah (mb-2) agar lebih rapat -->
+        <header class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5 mb-2 flex flex-col md:flex-row items-start justify-between gap-4">
+            <div class="w-full md:max-w-2xl page-title-container">
+                <!-- Judul Utama (Editable) -->
+                <h1 id="appTitle" contenteditable="true" onblur="saveTitle()" class="text-xl md:text-2xl font-bold text-slate-900 page-title editable-title px-1 transition-all duration-150 focus:outline-none" title="Klik untuk mengubah judul">
+                    Jadwal Piket Guru Mingguan
+                </h1>
+                <!-- Sub-Judul (Editable) -->
+                <p id="appSubtitle" contenteditable="true" onblur="saveSubtitle()" class="text-xs md:text-sm text-slate-500 no-print mt-1 editable-title px-1 transition-all duration-150 focus:outline-none" title="Klik untuk mengubah deskripsi">
+                    Kelola pembagian tugas piket dengan praktis, aman, dan dapat langsung dicetak.
+                </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2.5 no-print shrink-0 w-full md:w-auto justify-end">
+                <!-- Pilihan Orientasi Kertas -->
+                <div class="flex items-center gap-1 bg-slate-50 p-1 rounded-xl border border-slate-200">
+                    <button onclick="setOrientation('portrait')" data-orientation="portrait" class="btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-blue-600 text-white shadow-sm">
+                        <i class="fa-solid fa-file"></i> Potret
+                    </button>
+                    <button onclick="setOrientation('landscape')" data-orientation="landscape" class="btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200">
+                        <i class="fa-solid fa-file" style="transform: rotate(90deg);"></i> Lanskap
+                    </button>
+                </div>
+
+                <button onclick="triggerResetJadwal()" class="px-4 py-2 border border-slate-200 text-slate-600 rounded-xl hover:bg-slate-50 font-medium text-sm transition duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-rotate"></i> Reset Jadwal
+                </button>
+                <button onclick="window.print()" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-semibold text-sm shadow-md transition duration-150 flex items-center gap-2">
+                    <i class="fa-solid fa-print"></i> Cetak Jadwal
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Workspace -->
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
+            
+            <!-- Sidebar Input & Daftar Guru (Sisi Kiri) -->
+            <div class="lg:col-span-1 bg-white rounded-2xl shadow-sm border border-slate-100 p-5 no-print">
+                <h2 class="font-bold text-slate-900 mb-3 text-base flex items-center gap-2">
+                    <i class="fa-solid fa-users text-blue-500"></i> Daftar Guru
+                </h2>
+                
+                <!-- Input Guru Baru -->
+                <div class="mb-4">
+                    <label for="namaGuru" class="block text-xs font-semibold text-slate-500 uppercase mb-1.5">Tambah Guru</label>
+                    <div class="flex gap-1.5">
+                        <input type="text" id="namaGuru" placeholder="Ketik nama guru..." class="border border-slate-200 p-2 rounded-xl text-sm w-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-150">
+                        <button onclick="tambahGuru()" class="bg-blue-600 hover:bg-blue-700 text-white px-3.5 py-2 rounded-xl font-bold shadow-sm transition duration-150 flex items-center justify-center">
+                            <i class="fa-solid fa-plus"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Cari Guru -->
+                <div class="mb-4">
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-slate-400">
+                            <i class="fa-solid fa-magnifying-glass text-xs"></i>
+                        </span>
+                        <input type="text" id="cariGuru" oninput="filterGuru()" placeholder="Cari nama guru..." class="border border-slate-200 pl-8 pr-3 py-1.5 rounded-xl text-xs w-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-150">
+                    </div>
+                </div>
+
+                <!-- Petunjuk Navigasi -->
+                <div class="p-3 bg-slate-50 rounded-xl mb-4 border border-slate-100">
+                    <p class="text-[11px] text-slate-500 leading-relaxed">
+                        <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i>
+                        <strong>Petunjuk:</strong> Seret (drag) nama guru ke kolom hari, atau <strong>klik/tap</strong> nama guru untuk menugaskannya langsung jika menggunakan perangkat HP.
+                    </p>
+                </div>
+
+                <!-- Container Nama Guru -->
+                <div id="daftarGuru" class="space-y-2 max-h-[380px] overflow-y-auto pr-1 custom-scrollbar">
+                    <!-- Dimuat via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Tabel Jadwal Piket (Sisi Kanan) -->
+            <div class="lg:col-span-3 bg-white rounded-2xl shadow-sm border border-slate-100 p-5 md:p-6 overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full min-w-[700px] border-collapse table-fixed">
+                        <thead>
+                            <tr id="headerHari" class="bg-blue-900 text-white rounded-t-xl">
+                                <!-- Kolom Hari diisi melalui JavaScript -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="barisPiket" class="align-top divide-x divide-slate-100">
+                                <!-- Area Drop Zone Guru diisi melalui JavaScript -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Kolom Tanda Tangan Kepala Sekolah (Bawah Kanan Tabel) -->
+                <div class="signature-block mt-8 flex justify-end">
+                    <div class="w-64 text-slate-800 text-xs md:text-sm">
+                        <p class="mb-1">Diketahui,</p>
+                        <p class="font-semibold mb-16">Kepala Sekolah</p>
+                        
+                        <!-- Nama Kepsek (Editable) -->
+                        <div id="namaKepsek" contenteditable="true" onblur="saveKepsek()" class="font-bold border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none pb-0.5 mb-1 editable-title inline-block w-full" title="Klik untuk mengubah nama Kepala Sekolah">
+                            Nama Kepsek, M.Pd.
+                        </div>
+                        
+                        <!-- NIP Kepsek (Editable) -->
+                        <div class="flex items-center gap-1 text-slate-600">
+                            <span>NIP.</span>
+                            <span id="nipKepsek" contenteditable="true" onblur="saveKepsek()" class="border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none flex-grow pb-0.5 editable-title" title="Klik untuk mengubah NIP">
+                                198203152009041001
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Modal Penugasan Touch/Mobile (Khusus Pengguna HP/Tablet) -->
+    <div id="mobileAssignModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 transform scale-95 transition-transform duration-200">
+            <h3 class="font-bold text-slate-900 text-base mb-1" id="modalGuruNama">Pilih Hari Piket</h3>
+            <p class="text-xs text-slate-500 mb-4">Tugaskan guru ini ke hari berikut:</p>
+            
+            <div class="grid grid-cols-2 gap-2 mb-4" id="modalHariList">
+                <!-- Tombol hari dimuat dinamis -->
+            </div>
+            
+            <div class="flex justify-end pt-2 border-t border-slate-100">
+                <button onclick="tutupMobileModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition duration-150">
+                    Batal
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kotak Dialog Konfirmasi Kustom (Menggantikan confirm bawaan browser) -->
+    <div id="customConfirmModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl border border-slate-100 transform scale-95 transition-transform duration-200">
+            <div class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 mb-4 text-lg">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="font-bold text-slate-900 text-base mb-1" id="confirmModalTitle">Konfirmasi Tindakan</h3>
+            <p class="text-xs text-slate-500 mb-5" id="confirmModalDesc">Apakah Anda yakin ingin melakukan tindakan ini?</p>
+            
+            <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+                <button onclick="closeConfirmModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-xl transition duration-150">
+                    Batal
+                </button>
+                <button id="confirmExecuteBtn" class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-xl transition duration-150">
+                    Ya, Lanjutkan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification (Sebagai Pengganti alert()) -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-3 rounded-xl shadow-lg flex items-center gap-2 transform translate-y-12 opacity-0 transition-all duration-300 z-50 no-print">
+        <span id="toastIcon" class="text-green-400"><i class="fa-solid fa-circle-check"></i></span>
+        <span id="toastMessage" class="text-xs font-medium">Notifikasi berhasil!</span>
+    </div>
+
+    <script>
+        // Hari piket dari Senin - Sabtu
+        const hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        // Fungsi mengubah teks menjadi Proper Case (Kapital Setiap Awal Kata & Gelar)
+        function toProperCase(str) {
+            if (!str) return '';
+            return str.toLowerCase().replace(/(^\w|\s\w|[-.]\w)/g, m => m.toUpperCase());
+        }
+
+        // Daftar nama Guru awal dengan gelar akademik (Dummy Data)
+        const defaultGuruList = [
+            "Asmawati, S.Pd",
+            "Citra Mayasari Tanjung, S.Pd",
+            "Dewi Indah Pratiwi, S.Pd",
+            "Dian Eka Sari, S.Pd.I",
+            "Drs Fakhruddin Nst, S.Pd.I",
+            "Elverida Sipayung, S.Pd",
+            "Endang Rahmat Purnama, S.Pd",
+            "Fitriyani, S.Pd",
+            "Hayati, S.Pd",
+            "Luluk Afinur, S.Pd",
+            "Marista Manalu, S.Pd.K",
+            "Misnar Joko Irawan, S.Pd",
+            "Morista Sinaga, S.Pd",
+            "Raudhah Siregar, S.Pd",
+            "Ronni Sihombing, S.Pd",
+            "Sella Oktaviana, S.Pd"
+        ];
+
+        // Struktur jadwal bawaan (Default) sesuai gambar 12B1A613-16EA-494D-9D53-D5E7579E2C36.png
+        const defaultScheduleData = {
+            'Senin': [
+                "Ronni Sihombing, S.Pd",
+                "Fitriyani, S.Pd",
+                "Sella Oktaviana, S.Pd",
+                "Misnar Joko Irawan, S.Pd",
+                "Marista Manalu, S.Pd.K",
+                "Hayati, S.Pd"
+            ],
+            'Selasa': [
+                "Raudhah Siregar, S.Pd",
+                "Dewi Indah Pratiwi, S.Pd",
+                "Asmawati, S.Pd",
+                "Morista Sinaga, S.Pd",
+                "Elverida Sipayung, S.Pd"
+            ],
+            'Rabu': [
+                "Fitriyani, S.Pd",
+                "Sella Oktaviana, S.Pd",
+                "Dian Eka Sari, S.Pd.I",
+                "Citra Mayasari Tanjung, S.Pd",
+                "Luluk Afinur, S.Pd",
+                "Drs Fakhruddin Nst, S.Pd.I"
+            ],
+            'Kamis': [
+                "Endang Rahmat Purnama, S.Pd",
+                "Raudhah Siregar, S.Pd",
+                "Asmawati, S.Pd",
+                "Misnar Joko Irawan, S.Pd",
+                "Elverida Sipayung, S.Pd"
+            ],
+            'Jumat': [
+                "Dian Eka Sari, S.Pd.I",
+                "Marista Manalu, S.Pd.K",
+                "Drs Fakhruddin Nst, S.Pd.I",
+                "Morista Sinaga, S.Pd",
+                "Luluk Afinur, S.Pd"
+            ],
+            'Sabtu': [
+                "Ronni Sihombing, S.Pd",
+                "Dewi Indah Pratiwi, S.Pd",
+                "Endang Rahmat Purnama, S.Pd",
+                "Citra Mayasari Tanjung, S.Pd",
+                "Hayati, S.Pd"
+            ]
+        };
+
+        // State Aplikasi
+        let daftarGuru = [];
+        let piketSchedule = {
+            'Senin': [],
+            'Selasa': [],
+            'Rabu': [],
+            'Kamis': [],
+            'Jumat': [],
+            'Sabtu': []
+        };
+        let activeGuruForMobile = ""; 
+        let pendingConfirmAction = null; // Menyimpan callback aksi konfirmasi
+        let currentOrientation = "portrait"; // Default orientasi cetak
+
+        // Fungsi menghitung berapa kali guru ditugaskan di seluruh jadwal harian
+        function getAssignmentCount(nama) {
+            let count = 0;
+            hariList.forEach(h => {
+                if (piketSchedule[h] && piketSchedule[h].includes(nama)) {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        // Fungsi Memuat Data Awal
+        function loadAppData() {
+            // Load Judul & Sub-judul
+            const storedTitle = localStorage.getItem('piket_app_title');
+            const storedSubtitle = localStorage.getItem('piket_app_subtitle');
+            
+            if (storedTitle) {
+                document.getElementById('appTitle').innerText = storedTitle;
+            }
+            if (storedSubtitle) {
+                document.getElementById('appSubtitle').innerText = storedSubtitle;
+            }
+
+            // Load Kepala Sekolah & NIP
+            const storedKepsekNama = localStorage.getItem('piket_kepsek_nama');
+            const storedKepsekNip = localStorage.getItem('piket_kepsek_nip');
+            if (storedKepsekNama) {
+                document.getElementById('namaKepsek').innerText = storedKepsekNama;
+            }
+            if (storedKepsekNip) {
+                document.getElementById('nipKepsek').innerText = storedKepsekNip;
+            }
+
+            // Load Orientasi Kertas
+            const storedOrientation = localStorage.getItem('piket_print_orientation');
+            if (storedOrientation) {
+                currentOrientation = storedOrientation;
+            }
+            updateOrientationStyles();
+
+            // Load Guru & Schedule (Otomatis migrasi ke Proper Case jika data lama berhuruf kapital semua)
+            const storedGuru = localStorage.getItem('piket_daftar_guru');
+            const storedSchedule = localStorage.getItem('piket_schedule_data');
+
+            if (storedGuru) {
+                daftarGuru = JSON.parse(storedGuru).map(g => toProperCase(g));
+                saveToLocalStorage('piket_daftar_guru', daftarGuru);
+            } else {
+                daftarGuru = [...defaultGuruList];
+                saveToLocalStorage('piket_daftar_guru', daftarGuru);
+            }
+
+            if (storedSchedule) {
+                piketSchedule = JSON.parse(storedSchedule);
+                hariList.forEach(h => {
+                    if (piketSchedule[h]) {
+                        piketSchedule[h] = piketSchedule[h].map(g => toProperCase(g));
+                    } else {
+                        piketSchedule[h] = [];
+                    }
+                });
+                saveToLocalStorage('piket_schedule_data', piketSchedule);
+            } else {
+                // Gunakan default schedule template yang berisi nama + gelar
+                piketSchedule = JSON.parse(JSON.stringify(defaultScheduleData));
+                saveToLocalStorage('piket_schedule_data', piketSchedule);
+            }
+
+            renderDaftarGuru();
+            initTabelPiket();
+            renderSemuaPiketBadge();
+        }
+
+        // Menyimpan Judul Kustom
+        function saveTitle() {
+            const val = document.getElementById('appTitle').innerText.trim();
+            localStorage.setItem('piket_app_title', val || "Jadwal Piket Guru Mingguan");
+        }
+
+        function saveSubtitle() {
+            const val = document.getElementById('appSubtitle').innerText.trim();
+            localStorage.setItem('piket_app_subtitle', val || "Kelola pembagian tugas piket dengan praktis, aman, dan dapat langsung dicetak.");
+        }
+
+        // Menyimpan Nama & NIP Kepala Sekolah
+        function saveKepsek() {
+            const nama = document.getElementById('namaKepsek').innerText.trim();
+            const nip = document.getElementById('nipKepsek').innerText.trim();
+            localStorage.setItem('piket_kepsek_nama', nama || "Nama Kepsek, M.Pd.");
+            localStorage.setItem('piket_kepsek_nip', nip || "198203152009041001");
+        }
+
+        // Fungsi Menyimpan data ke Local Storage
+        function saveToLocalStorage(key, data) {
+            localStorage.setItem(key, JSON.stringify(data));
+        }
+
+        // Tampilkan Toast Message yang estetik
+        function showToast(message, isError = false) {
+            const toast = document.getElementById('toastNotification');
+            const icon = document.getElementById('toastIcon');
+            const msg = document.getElementById('toastMessage');
+
+            msg.innerText = message;
+            if (isError) {
+                icon.innerHTML = '<i class="fa-solid fa-circle-exclamation"></i>';
+                icon.className = 'text-red-400';
+            } else {
+                icon.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+                icon.className = 'text-green-400';
+            }
+
+            toast.classList.remove('translate-y-12', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-12', 'opacity-0');
+            }, 3000);
+        }
+
+        // Menampilkan Dialog Konfirmasi Kustom
+        function showConfirmModal(title, description, onConfirm) {
+            document.getElementById('confirmModalTitle').innerText = title;
+            document.getElementById('confirmModalDesc').innerText = description;
+            
+            pendingConfirmAction = onConfirm;
+            
+            const modal = document.getElementById('customConfirmModal');
+            modal.classList.remove('hidden');
+            
+            // Set handler klik tombol eksekusi
+            document.getElementById('confirmExecuteBtn').onclick = function() {
+                if (pendingConfirmAction) pendingConfirmAction();
+                closeConfirmModal();
+            };
+        }
+
+        function closeConfirmModal() {
+            document.getElementById('customConfirmModal').classList.add('hidden');
+            pendingConfirmAction = null;
+        }
+
+        // Fungsi Tambah Guru Baru secara Manual
+        function tambahGuru() {
+            const input = document.getElementById('namaGuru');
+            const nama = toProperCase(input.value.trim());
+
+            if (nama === '') {
+                showToast("Nama guru tidak boleh kosong!", true);
+                return;
+            }
+
+            if (daftarGuru.includes(nama)) {
+                showToast("Nama guru sudah ada dalam daftar!", true);
+                return;
+            }
+
+            daftarGuru.push(nama);
+            daftarGuru.sort();
+            
+            saveToLocalStorage('piket_daftar_guru', daftarGuru);
+            renderDaftarGuru();
+            
+            input.value = '';
+            showToast(`Guru ${nama} berhasil ditambahkan!`);
+        }
+
+        // Hapus Guru dari Master List Utama
+        function hapusGuruMaster(nama) {
+            showConfirmModal(
+                `Hapus ${nama}?`,
+                `Tindakan ini akan menghapus ${nama} dari daftar guru utama dan seluruh jadwal piket harian.`,
+                function() {
+                    daftarGuru = daftarGuru.filter(g => g !== nama);
+                    saveToLocalStorage('piket_daftar_guru', daftarGuru);
+                    
+                    hariList.forEach(h => {
+                        piketSchedule[h] = piketSchedule[h].filter(g => g !== nama);
+                    });
+                    saveToLocalStorage('piket_schedule_data', piketSchedule);
+
+                    renderDaftarGuru();
+                    renderSemuaPiketBadge();
+                    showToast(`Guru ${nama} berhasil dihapus.`);
+                }
+            );
+        }
+
+        // Filter / Pencarian Guru
+        function filterGuru() {
+            const keyword = document.getElementById('cariGuru').value.toLowerCase();
+            const items = document.querySelectorAll('.guru-item');
+            
+            items.forEach(item => {
+                const text = item.getAttribute('data-nama').toLowerCase();
+                if (text.includes(keyword)) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        // Render Master Daftar Guru di Sidebar Sisi Kiri
+        function renderDaftarGuru() {
+            const container = document.getElementById('daftarGuru');
+            container.innerHTML = '';
+
+            if (daftarGuru.length === 0) {
+                container.innerHTML = `<p class="text-xs text-slate-400 text-center py-4">Tidak ada guru.</p>`;
+                return;
+            }
+
+            daftarGuru.forEach(nama => {
+                const el = document.createElement('div');
+                el.className = 'guru-item bg-white border border-slate-200 p-2.5 rounded-xl shadow-sm cursor-grab hover:bg-blue-50/50 hover:border-blue-300 transition-all duration-150 flex items-center justify-between group active:cursor-grabbing';
+                el.draggable = true;
+                el.setAttribute('data-nama', nama);
+                
+                // Content text nama (bisa diedit secara langsung)
+                const textSpan = document.createElement('span');
+                textSpan.className = 'text-xs font-semibold text-slate-700 truncate mr-2 flex-grow select-none focus:outline-none focus:bg-slate-100 p-1 rounded cursor-text';
+                textSpan.contentEditable = true;
+                textSpan.innerText = nama;
+                textSpan.setAttribute('data-old-nama', nama);
+                textSpan.title = 'Klik dua kali untuk mengedit nama guru di seluruh tabel';
+
+                // Handler click untuk asisten perangkat mobile
+                textSpan.onclick = (e) => {
+                    // Jika sedang aktif mengedit (fokus), jangan buka modal pilihan hari
+                    if (document.activeElement === textSpan) {
+                        e.stopPropagation();
+                        return;
+                    }
+                    bukaMobileModal(nama);
+                };
+
+                // Nonaktifkan drag-and-drop sementara saat mengedit teks agar tidak bentrok
+                textSpan.onfocus = () => {
+                    el.draggable = false;
+                };
+
+                // Cegah tombol enter membuat baris baru, melainkan langsung trigger blur (selesai edit)
+                textSpan.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        textSpan.blur();
+                    }
+                };
+
+                // Proses perubahan nama setelah selesai diedit (blur)
+                textSpan.onblur = () => {
+                    el.draggable = true;
+                    const oldNama = textSpan.getAttribute('data-old-nama');
+                    const newNama = toProperCase(textSpan.innerText.trim());
+
+                    if (newNama === '') {
+                        showToast("Nama guru tidak boleh kosong!", true);
+                        textSpan.innerText = oldNama;
+                        return;
+                    }
+
+                    if (newNama === oldNama) return;
+
+                    // Update di database utama
+                    const indexMaster = daftarGuru.indexOf(oldNama);
+                    if (indexMaster !== -1) {
+                        daftarGuru[indexMaster] = newNama;
+                        daftarGuru.sort();
+                        saveToLocalStorage('piket_daftar_guru', daftarGuru);
+                    }
+
+                    // Update nama di seluruh jadwal piket harian yang ada
+                    hariList.forEach(h => {
+                        piketSchedule[h] = piketSchedule[h].map(g => g === oldNama ? newNama : g);
+                    });
+                    saveToLocalStorage('piket_schedule_data', piketSchedule);
+
+                    // Render ulang komponen agar sinkron
+                    renderDaftarGuru();
+                    renderSemuaPiketBadge();
+                    showToast(`Nama guru berhasil diperbarui.`);
+                };
+
+                // Indikator jumlah penugasan di Sidebar
+                const count = getAssignmentCount(nama);
+                const countBadge = document.createElement('span');
+                countBadge.className = `text-[10px] px-2 py-0.5 rounded-full font-bold shrink-0 mr-1 select-none ${count > 0 ? 'bg-blue-100 text-blue-700' : 'bg-slate-100 text-slate-400'}`;
+                countBadge.innerText = `${count}x`;
+                countBadge.title = `Ditugaskan sebanyak ${count} kali`;
+
+                // Tombol Hapus Guru dari master daftar
+                const delBtn = document.createElement('button');
+                delBtn.className = 'opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 p-1 rounded transition-opacity duration-150 shrink-0';
+                delBtn.innerHTML = '<i class="fa-solid fa-trash-can text-[10px]"></i>';
+                delBtn.title = 'Hapus dari database utama';
+                delBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    hapusGuruMaster(nama);
+                };
+
+                el.appendChild(textSpan);
+                el.appendChild(countBadge);
+                el.appendChild(delBtn);
+
+                // Event Drag and Drop Standard
+                el.ondragstart = (e) => {
+                    e.dataTransfer.setData('text/plain', nama);
+                    el.classList.add('dragging');
+                };
+                el.ondragend = () => {
+                    el.classList.remove('dragging');
+                };
+
+                container.appendChild(el);
+            });
+        }
+
+        // Inisialisasi Header dan Kerangka Kolom di Tabel Hari
+        function initTabelPiket() {
+            const headerHari = document.getElementById('headerHari');
+            const barisPiket = document.getElementById('barisPiket');
+
+            headerHari.innerHTML = '';
+            barisPiket.innerHTML = '';
+
+            hariList.forEach(h => {
+                // Header Hari
+                const th = document.createElement('th');
+                th.className = 'border border-slate-200 p-3.5 text-center font-bold text-sm bg-blue-900 text-white w-1/6 shadow-sm';
+                th.innerText = h;
+                headerHari.appendChild(th);
+
+                // Drop Zone di bawah hari tersebut
+                const td = document.createElement('td');
+                td.className = 'drop-zone border border-slate-200 p-1 bg-white transition-all duration-200';
+                td.id = `zone-${h}`;
+                
+                // Dragover
+                td.ondragover = (e) => {
+                    e.preventDefault();
+                };
+                // Drag Enter
+                td.ondragenter = (e) => {
+                    e.preventDefault();
+                    td.classList.add('drag-over');
+                };
+                // Drag Leave
+                td.ondragleave = () => {
+                    td.classList.remove('drag-over');
+                };
+                // Drop Handler
+                td.ondrop = (e) => {
+                    td.classList.remove('drag-over');
+                    const nama = e.dataTransfer.getData('text/plain');
+                    if (nama) {
+                        tambahGuruKeHari(nama, h);
+                    }
+                };
+
+                barisPiket.appendChild(td);
+            });
+        }
+
+        // Tambahkan guru ke daftar hari piket
+        function tambahGuruKeHari(nama, hari) {
+            if (piketSchedule[hari].includes(nama)) {
+                showToast(`${nama} sudah ditugaskan piket di hari ${hari}!`, true);
+                return;
+            }
+
+            piketSchedule[hari].push(nama);
+            saveToLocalStorage('piket_schedule_data', piketSchedule);
+            
+            // Render ulang daftar guru & semua badge agar indikator "total penugasan" sinkron
+            renderDaftarGuru();
+            renderSemuaPiketBadge();
+            showToast(`${nama} ditugaskan piket pada hari ${hari}.`);
+        }
+
+        // Menghapus guru dari piket harian tertentu
+        function hapusGuruDariHari(nama, hari) {
+            piketSchedule[hari] = piketSchedule[hari].filter(g => g !== nama);
+            saveToLocalStorage('piket_schedule_data', piketSchedule);
+            
+            // Render ulang daftar guru & semua badge agar indikator "total penugasan" sinkron
+            renderDaftarGuru();
+            renderSemuaPiketBadge();
+        }
+
+        // Render nama guru di dalam tabel piket (Hanya teks lurus menyesuaikan lebar kolom)
+        function renderPiketBadgeHarian(hari) {
+            const zone = document.getElementById(`zone-${hari}`);
+            zone.innerHTML = '';
+
+            const listGuruHarian = piketSchedule[hari];
+
+            if (listGuruHarian.length === 0) {
+                // Keterangan visual bantuan seret saat kosong (Disembunyikan saat cetak)
+                zone.innerHTML = `<div class="text-[10px] text-slate-400/70 text-center py-16 select-none pointer-events-none no-print"><i class="fa-solid fa-arrows-left-right block text-sm mb-1 opacity-50"></i> Seret ke sini</div>`;
+                return;
+            }
+
+            listGuruHarian.forEach(nama => {
+                const badge = document.createElement('div');
+                badge.className = 'badge-guru';
+                
+                // Teks nama guru (dapat diedit secara interaktif langsung dari tabel)
+                const textSpan = document.createElement('span');
+                textSpan.className = 'nama-text focus:outline-none focus:bg-slate-100 px-1 rounded cursor-text';
+                textSpan.contentEditable = true;
+                textSpan.innerText = nama;
+                textSpan.setAttribute('data-old-nama', nama);
+                textSpan.title = 'Klik untuk mengedit nama secara langsung';
+
+                // Cegah line break (Enter) dan langsung simpan saat selesai mengetik
+                textSpan.onkeydown = (e) => {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        textSpan.blur();
+                    }
+                };
+
+                // Proses perubahan nama saat fokus dilepaskan (blur)
+                textSpan.onblur = () => {
+                    const oldNama = textSpan.getAttribute('data-old-nama');
+                    const newNama = toProperCase(textSpan.innerText.trim());
+
+                    if (newNama === '') {
+                        showToast("Nama guru tidak boleh kosong!", true);
+                        textSpan.innerText = oldNama; // Kembalikan ke nama semula jika kosong
+                        return;
+                    }
+
+                    if (newNama === oldNama) return;
+
+                    // Update di database utama
+                    const indexMaster = daftarGuru.indexOf(oldNama);
+                    if (indexMaster !== -1) {
+                        daftarGuru[indexMaster] = newNama;
+                        daftarGuru.sort();
+                        saveToLocalStorage('piket_daftar_guru', daftarGuru);
+                    }
+
+                    // Update di seluruh hari jadwal piket harian
+                    hariList.forEach(h => {
+                        piketSchedule[h] = piketSchedule[h].map(g => g === oldNama ? newNama : g);
+                    });
+                    saveToLocalStorage('piket_schedule_data', piketSchedule);
+
+                    // Sinkronisasi render ulang agar data di kiri dan kanan tetap sama
+                    renderDaftarGuru();
+                    renderSemuaPiketBadge();
+                    showToast(`Nama guru berhasil diperbarui.`);
+                };
+
+                // Indikator jumlah penugasan di dalam tabel (Hanya tampil di layar / no-print)
+                const count = getAssignmentCount(nama);
+                const countBadge = document.createElement('span');
+                countBadge.className = 'text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-semibold ml-1 no-print shrink-0 select-none';
+                countBadge.innerText = `${count}x`;
+                countBadge.title = `Total ditugaskan: ${count} kali`;
+                
+                // Tombol Hapus (Disembunyikan saat cetak)
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '<i class="fa-solid fa-xmark text-[10px]"></i>';
+                deleteBtn.className = 'text-slate-300 hover:text-red-500 font-bold focus:outline-none transition-colors duration-150 no-print px-1.5 shrink-0';
+                deleteBtn.title = 'Hapus dari hari ini';
+                deleteBtn.onclick = () => {
+                    hapusGuruDariHari(nama, hari);
+                };
+                
+                badge.appendChild(textSpan);
+                badge.appendChild(countBadge);
+                badge.appendChild(deleteBtn);
+                zone.appendChild(badge);
+            });
+        }
+
+        // Render ulang semua badge piket
+        function renderSemuaPiketBadge() {
+            hariList.forEach(h => {
+                renderPiketBadgeHarian(h);
+            });
+        }
+
+        // FUNGSI KHUSUS PERANGKAT MOBILE (TAP TO ASSIGN)
+        function bukaMobileModal(nama) {
+            activeGuruForMobile = nama;
+            document.getElementById('modalGuruNama').innerText = nama;
+            
+            const container = document.getElementById('modalHariList');
+            container.innerHTML = '';
+
+            hariList.forEach(h => {
+                const button = document.createElement('button');
+                button.className = 'p-2 text-xs font-semibold rounded-xl text-left border border-slate-200 transition duration-150 flex items-center justify-between hover:bg-blue-50';
+                
+                // Cek apakah guru sudah ada di hari ini
+                const isAssigned = piketSchedule[h].includes(nama);
+                if (isAssigned) {
+                    button.className += ' bg-green-50 border-green-200 text-green-800';
+                    button.innerHTML = `<span>${h}</span> <i class="fa-solid fa-circle-check text-[10px]"></i>`;
+                    button.onclick = () => {
+                        hapusGuruDariHari(nama, h);
+                        bukaMobileModal(nama); // Segarkan status modal
+                    };
+                } else {
+                    button.className += ' bg-white hover:border-blue-300 text-slate-700';
+                    button.innerHTML = `<span>${h}</span> <i class="fa-solid fa-plus text-[10px] text-slate-400"></i>`;
+                    button.onclick = () => {
+                        tambahGuruKeHari(nama, h);
+                        bukaMobileModal(nama); // Segarkan status modal
+                    };
+                }
+
+                container.appendChild(button);
+            });
+
+            document.getElementById('mobileAssignModal').classList.remove('hidden');
+        }
+
+        function tutupMobileModal() {
+            document.getElementById('mobileAssignModal').classList.add('hidden');
+            activeGuruForMobile = "";
+        }
+
+        // Reset semua data jadwal harian ke kosong
+        function triggerResetJadwal() {
+            showConfirmModal(
+                "Reset Semua Jadwal?",
+                "Apakah Anda yakin ingin mengosongkan seluruh pembagian jadwal piket dari Senin sampai Sabtu?",
+                function() {
+                    clearPiketData();
+                    renderDaftarGuru();
+                    renderSemuaPiketBadge();
+                    showToast("Semua jadwal piket berhasil dikosongkan.");
+                }
+            );
+        }
+
+        function clearPiketData() {
+            piketSchedule = {
+                'Senin': [],
+                'Selasa': [],
+                'Rabu': [],
+                'Kamis': [],
+                'Jumat': [],
+                'Sabtu': []
+            };
+            saveToLocalStorage('piket_schedule_data', piketSchedule);
+        }
+
+        // Mengubah orientasi cetak (Portrait/Landscape)
+        function setOrientation(type) {
+            currentOrientation = type;
+            saveToLocalStorage('piket_print_orientation', type);
+            updateOrientationStyles();
+            showToast(`Orientasi cetak diubah ke ${type === 'landscape' ? 'Lanskap' : 'Potret'}.`);
+        }
+
+        // Memperbarui aturan CSS @media print berdasarkan orientasi aktif
+        function updateOrientationStyles() {
+            let styleEl = document.getElementById('orientation-print-style');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'orientation-print-style';
+                document.head.appendChild(styleEl);
+            }
+            
+            if (currentOrientation === 'landscape') {
+                styleEl.innerHTML = `
+                    @media print {
+                        @page {
+                            size: landscape;
+                            margin: 1cm 1.5cm;
+                        }
+                        /* Penyesuaian khusus Lanskap */
+                        .max-w-7xl {
+                            max-width: 100% !important;
+                            width: 100% !important;
+                        }
+                        table {
+                            font-size: 13px !important;
+                        }
+                        th {
+                            padding: 12px 6px !important;
+                            font-size: 13px !important;
+                        }
+                        td {
+                            padding: 8px 6px !important;
+                        }
+                        .badge-guru .nama-text {
+                            font-size: 12px !important;
+                            padding: 4px 0 !important;
+                        }
+                        .signature-block {
+                            margin-top: 40px !important;
+                        }
+                    }
+                `;
+            } else {
+                styleEl.innerHTML = `
+                    @media print {
+                        @page {
+                            size: portrait;
+                            margin: 1cm;
+                        }
+                        /* Penyesuaian khusus Potret */
+                        .max-w-7xl {
+                            max-width: 100% !important;
+                            width: 100% !important;
+                        }
+                        table {
+                            font-size: 11px !important;
+                        }
+                        th {
+                            padding: 8px 4px !important;
+                            font-size: 11px !important;
+                        }
+                        td {
+                            padding: 4px 4px !important;
+                        }
+                        .badge-guru .nama-text {
+                            font-size: 10px !important;
+                            padding: 2px 0 !important;
+                        }
+                        .signature-block {
+                            margin-top: 25px !important;
+                        }
+                    }
+                `;
+            }
+
+            // Memperbarui visual tombol di header
+            document.querySelectorAll('.btn-orientation').forEach(btn => {
+                const orient = btn.getAttribute('data-orientation');
+                if (orient === currentOrientation) {
+                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-blue-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'btn-orientation px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition duration-150 bg-white text-slate-600 hover:bg-slate-50 border border-slate-200';
+                }
+            });
+        }
+
+        // Jalankan inisiasi saat halaman selesai dimuat sepenuhnya
+        window.onload = function () {
+            loadAppData();
+        }
+    </script>
+</body>
+</html>
