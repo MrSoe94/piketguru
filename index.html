@@ -327,14 +327,14 @@
                         
                         <!-- Nama Kepsek (Editable) -->
                         <div id="namaKepsek" contenteditable="true" onblur="saveKepsek()" class="font-bold border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none pb-2 mb-1.5 editable-title block w-full" style="line-height: 1.6;" title="Klik untuk mengubah nama Kepala Sekolah">
-                            Nama Kepsek, M.Pd.
+                            Dra.SUHARYANTI
                         </div>
                         
                         <!-- NIP Kepsek (Editable) -->
                         <div class="flex items-center gap-1 text-slate-600">
                             <span>NIP.</span>
                             <span id="nipKepsek" contenteditable="true" onblur="saveKepsek()" class="border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none flex-grow pb-0.5 editable-title" title="Klik untuk mengubah NIP">
-                                198203152009041001
+                                19700224 201411 2 001
                             </span>
                         </div>
                     </div>
@@ -570,8 +570,8 @@
         function saveKepsek() {
             const nama = document.getElementById('namaKepsek').innerText.trim();
             const nip = document.getElementById('nipKepsek').innerText.trim();
-            localStorage.setItem('piket_kepsek_nama', nama || "Nama Kepsek, M.Pd.");
-            localStorage.setItem('piket_kepsek_nip', nip || "198203152009041001");
+            localStorage.setItem('piket_kepsek_nama', nama || "Dra.SUHARYANTI");
+            localStorage.setItem('piket_kepsek_nip', nip || "19700224 201411 2 001");
         }
 
         // Fungsi Menyimpan data ke Local Storage
