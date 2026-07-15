@@ -59,10 +59,23 @@
             width: 100%;
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 6px;
+            justify-content: flex-start; /* Menggunakan flex-start agar posisi tombol x, nama, dan indikator seimbang */
+            gap: 4px;
             box-sizing: border-box;
             transition: background-color 0.15s ease;
+        }
+        .badge-guru:hover {
+            background-color: #f1f5f9 !important;
+        }
+        .badge-guru .nama-text {
+            font-size: 12px;
+            font-weight: 500;
+            line-height: 1.4;
+            text-align: left;
+            word-wrap: break-word;
+            white-space: normal;
+            overflow-wrap: break-word;
+            flex-grow: 1; /* Nama tetap mengambil sisa ruang tengah */
         }
         .badge-guru:hover {
             background-color: #f1f5f9 !important;
@@ -963,15 +976,8 @@
                     renderSemuaPiketBadge();
                     showToast(`Nama guru berhasil diperbarui.`);
                 };
-
-                // Indikator jumlah penugasan di dalam tabel (Hanya tampil di layar / no-print)
-                const count = getAssignmentCount(nama);
-                const countBadge = document.createElement('span');
-                countBadge.className = 'text-[9px] bg-slate-100 text-slate-500 px-1.5 py-0.5 rounded-md font-semibold ml-1 no-print shrink-0 select-none';
-                countBadge.innerText = `${count}x`;
-                countBadge.title = `Total ditugaskan: ${count} kali`;
                 
-                // Tombol Hapus (Disembunyikan saat cetak)
+                // Tombol Hapus (Disembunyikan saat cetak) - diletakkan di sebelah kiri
                 const deleteBtn = document.createElement('button');
                 deleteBtn.innerHTML = '<i class="fa-solid fa-xmark text-[10px]"></i>';
                 deleteBtn.className = 'text-slate-300 hover:text-red-500 font-bold focus:outline-none transition-colors duration-150 no-print px-1.5 shrink-0';
@@ -980,9 +986,10 @@
                     hapusGuruDariHari(nama, hari);
                 };
                 
-                badge.appendChild(textSpan);
-                badge.appendChild(countBadge);
+                // Urutan penyisipan elemen: Tombol Hapus (Kiri) dan Nama Guru (Kanan)
+                // Indikator frekuensi dibuang dari tabel atas permintaan user
                 badge.appendChild(deleteBtn);
+                badge.appendChild(textSpan);
                 zone.appendChild(badge);
             });
         }
