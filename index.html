@@ -325,8 +325,8 @@
                         <p class="mb-1">Diketahui,</p>
                         <p class="font-semibold mb-16">Kepala Sekolah</p>
                         
-                        <!-- Nama Kepsek (Editable) -->
-                        <div id="namaKepsek" contenteditable="true" onblur="saveKepsek()" class="font-bold border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none pb-2 mb-1.5 editable-title block w-full" style="line-height: 1.6;" title="Klik untuk mengubah nama Kepala Sekolah">
+                        <!-- Nama Kepsek (Editable) - Dirapatkan dengan pb-1 mb-1 dan line-height 1.3 -->
+                        <div id="namaKepsek" contenteditable="true" onblur="saveKepsek()" class="font-bold border-b border-dashed border-slate-300 focus:border-blue-500 focus:outline-none pb-1 mb-1 editable-title block w-full" style="line-height: 1.3;" title="Klik untuk mengubah nama Kepala Sekolah">
                             Dra.SUHARYANTI
                         </div>
                         
@@ -1282,9 +1282,9 @@
                 kepsekNameEl.style.width = '100%';
                 kepsekNameEl.style.border = 'none';
                 kepsekNameEl.style.borderBottom = '1px solid #1e293b'; // Garis padat elegan berwarna gelap
-                kepsekNameEl.style.paddingBottom = '8px'; // Jarak vertikal aman agar tidak menabrak teks
-                kepsekNameEl.style.marginBottom = '6px';
-                kepsekNameEl.style.lineHeight = '1.6';
+                kepsekNameEl.style.paddingBottom = '4px'; // Dirapatkan agar pas di bawah huruf
+                kepsekNameEl.style.marginBottom = '3px';  // Dirapatkan mendekati baris NIP
+                kepsekNameEl.style.lineHeight = '1.3';    // Memastikan baris teks rapat
             }
             const kepsekNipEl = originalSig.querySelector('#nipKepsek');
             if (kepsekNipEl) {
