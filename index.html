@@ -288,12 +288,37 @@
                     </div>
                 </div>
 
-                <!-- Petunjuk Navigasi -->
-                <div class="p-3 bg-slate-50 rounded-xl mb-4 border border-slate-100">
-                    <p class="text-[11px] text-slate-500 leading-relaxed">
-                        <i class="fa-solid fa-circle-info text-blue-500 mr-1"></i>
-                        <strong>Petunjuk:</strong> <strong>Klik/tap</strong> nama guru untuk langsung memilih hari piketnya, atau seret (drag) nama guru ke tabel di sebelah kanan.
-                    </p>
+                <!-- Petunjuk Penggunaan Collapsible Accordion -->
+                <div class="mb-4 border border-slate-200 rounded-xl overflow-hidden bg-slate-50 no-print">
+                    <button onclick="toggleInstructions()" class="w-full p-3 flex justify-between items-center text-xs font-bold text-slate-700 hover:bg-slate-100 transition duration-150 focus:outline-none">
+                        <span class="flex items-center gap-2">
+                            <i class="fa-solid fa-circle-info text-blue-600 text-sm"></i>
+                            Petunjuk Penggunaan
+                        </span>
+                        <i id="instructionsChevron" class="fa-solid fa-chevron-down text-slate-400 transition-transform duration-200"></i>
+                    </button>
+                    <div id="instructionsContent" class="hidden border-t border-slate-100 p-3.5 space-y-3 text-[11px] text-slate-600 bg-white">
+                        <div class="flex gap-2">
+                            <div class="shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-[10px] font-bold">1</div>
+                            <p><strong>Tambah Guru:</strong> Ketik nama + gelar pada kolom input, lalu klik tombol <i class="fa-solid fa-plus text-slate-500"></i>.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-[10px] font-bold">2</div>
+                            <p><strong>Atur Jadwal:</strong> <strong>Klik sekali</strong> nama guru untuk memilih hari piket melalui popup modal, atau <strong>seret (drag)</strong> nama guru langsung ke tabel.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-[10px] font-bold">3</div>
+                            <p><strong>Edit Nama:</strong> Ketuk dua kali (double-click) pada nama guru atau klik ikon pensil <i class="fa-solid fa-pen text-[9px] text-slate-400"></i> untuk mengubah nama.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-[10px] font-bold">4</div>
+                            <p><strong>Hapus Piket:</strong> Klik tanda silang <i class="fa-solid fa-xmark text-red-500 text-[9px]"></i> di sebelah kiri nama guru pada tabel untuk menghapus penugasannya.</p>
+                        </div>
+                        <div class="flex gap-2">
+                            <div class="shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center text-blue-600 text-[10px] font-bold">5</div>
+                            <p><strong>Simpan / Cetak:</strong> Gunakan tombol di atas untuk memilih orientasi, lalu <strong>Cetak Jadwal</strong> atau <strong>Unduh PNG</strong>.</p>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Container Nama Guru -->
@@ -391,6 +416,19 @@
     <script>
         // Hari piket dari Senin - Sabtu
         const hariList = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+
+        // Fungsi toggle petunjuk penggunaan
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const chevron = document.getElementById('instructionsChevron');
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                chevron.classList.add('rotate-180');
+            } else {
+                content.classList.add('hidden');
+                chevron.classList.remove('rotate-180');
+            }
+        }
 
         // Fungsi mengubah teks menjadi Proper Case (Kapital Setiap Awal Kata & Gelar)
         function toProperCase(str) {
