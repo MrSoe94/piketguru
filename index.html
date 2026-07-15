@@ -180,18 +180,16 @@
                 color: #0f172a !important;
                 box-shadow: none !important;
                 padding: 6px 2px !important;
+                padding-left: 8px !important;
                 margin-bottom: 0 !important;
                 display: block !important;
-                text-align: center !important;
+                text-align: left !important;
             }
             .badge-guru .nama-text {
                 font-size: 10px !important;
-                text-align: center !important;
+                text-align: left !important;
                 display: block !important;
                 width: 100% !important;
-            }
-            .badge-guru button {
-                display: none !important;
             }
             /* Menghilangkan garis bantu kustomisasi saat dicetak */
             .border-dashed {
@@ -1209,7 +1207,8 @@
                     badge.style.border = 'none';
                     badge.style.borderBottom = '1px solid #cbd5e1'; // Line pemisah tipis
                     badge.style.padding = '6px 2px';
-                    badge.style.textAlign = 'center';
+                    badge.style.paddingLeft = '8px';
+                    badge.style.textAlign = 'left';
                     badge.style.backgroundColor = 'transparent';
                     
                     const textSpan = badge.querySelector('.nama-text');
@@ -1217,7 +1216,7 @@
                         textSpan.style.fontSize = '11px';
                         textSpan.style.fontWeight = '600';
                         textSpan.style.color = '#0f172a';
-                        textSpan.style.textAlign = 'center';
+                        textSpan.style.textAlign = 'left';
                         textSpan.style.display = 'block';
                         textSpan.style.width = '100%';
                     }
